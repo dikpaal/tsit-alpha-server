@@ -9,6 +9,9 @@ WORKDIR /app
 # Copy server source
 COPY server/ ./
 
+# Update go.mod to use compatible version
+RUN go mod edit -go=1.23 && go mod tidy
+
 # Build C++ shared library
 RUN g++ -shared -fPIC -o libprocess.so process.cpp -lpthread
 
