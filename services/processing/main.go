@@ -10,9 +10,15 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/nats-io/nats.go"
+)
+
+var (
+	currentSymbol string
+	symbolMu      sync.RWMutex
 )
 
 // TradeMessage from ingestion service
@@ -59,14 +65,31 @@ func main() {
 
 	// Subscribe to symbol change for processor reset
 	nc.Subscribe("control.symbol", func(msg *nats.Msg) {
+		var req struct {
+			Symbol string `json:"symbol"`
+		}
+		if err := json.Unmarshal(msg.Data, &req); err != nil {
+			return
+		}
+		symbolMu.Lock()
+		currentSymbol = req.Symbol
+		symbolMu.Unlock()
 		C.reset_processor()
-		log.Println("Processor reset for symbol change")
+		log.Printf("Processor reset for symbol change to %s", req.Symbol)
 	})
 
 	// Subscribe to raw trades
 	nc.Subscribe("trades.raw", func(msg *nats.Msg) {
 		var trade TradeMessage
 		if err := json.Unmarshal(msg.Data, &trade); err != nil {
+			return
+		}
+
+		// Ignore trades from old symbol after a symbol change
+		symbolMu.RLock()
+		sym := currentSymbol
+		symbolMu.RUnlock()
+		if sym != "" && trade.Symbol != sym {
 			return
 		}
 
