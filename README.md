@@ -22,10 +22,10 @@ A real-time data acquisition pipeline that streams cryptocurrency market data fr
                         │  │  Client   │  │     │  │   View    │  │
                         │  └─────┬─────┘  │     │  └───────────┘  │
                         │        │        │     │                 │
-                        │  ┌─────▼─────┐  │     │  ┌───────────┐  │
-                        │  │    C++    │  │     │  │   Coin    │  │
-                        │  │ Processor │  │     │  │ Selector  │  │
-                        │  └─────┬─────┘  │     │  └───────────┘  │
+                        │  ┌─────▼─────┐  │     │                 │
+                        │  │    C++    │  │     │                 │
+                        │  │ Processor │  │     │                 │
+                        │  └─────┬─────┘  │     │                 │
                         │        │        │     │                 │
                         │  ┌─────▼─────┐  │     └─────────────────┘
                         │  │  HTTP/WS  │  │
